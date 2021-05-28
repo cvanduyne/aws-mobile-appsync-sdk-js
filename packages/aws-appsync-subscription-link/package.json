@@ -1,5 +1,5 @@
 {
-  "name": "aws-appsync-subscription-link",
+  "name": "@cvanduyne/aws-appsync-subscription-link",
   "version": "3.0.6",
   "main": "lib/index.js",
   "license": "Apache-2.0",
