@@ -28,7 +28,7 @@ function createSubscriptionHandshakeLink(
 
   if (typeof infoOrUrl === "string") {
     resultsFetcherLink =
-      theResultsFetcherLink || createHttpLink({ uri: infoOrUrl });
+      theResultsFetcherLink || createHttpLink({ uri: infoOrUrl, includeUnusedVariables: true });
     subscriptionLinks = ApolloLink.from([
       new NonTerminatingLink("controlMessages", {
         link: new ApolloLink(
@@ -53,7 +53,7 @@ function createSubscriptionHandshakeLink(
     ]);
   } else {
     const { url } = infoOrUrl;
-    resultsFetcherLink = theResultsFetcherLink || createHttpLink({ uri: url });
+    resultsFetcherLink = theResultsFetcherLink || createHttpLink({ uri: url, includeUnusedVariables: true });
     subscriptionLinks = new AppSyncRealTimeSubscriptionHandshakeLink(infoOrUrl);
   }
 

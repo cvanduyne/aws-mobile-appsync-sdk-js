@@ -35,7 +35,7 @@ const NON_RETRYABLE_CODES = [400, 401, 403];
 const SERVICE = "appsync";
 
 const APPSYNC_REALTIME_HEADERS = {
-  accept: 'application/json, text/javascript',
+  accept: '*/*',
   'content-encoding': 'amz-1.0',
   'content-type': 'application/json; charset=UTF-8'
 };
@@ -303,12 +303,19 @@ export class AppSyncRealTimeSubscriptionHandshakeLink extends ApolloLink {
       });
       observer.complete();
 
-      const { subscriptionFailedCallback } =
-        this.subscriptionObserverMap.get(subscriptionId) || {};
+      try 
+      {
+          const { subscriptionFailedCallback } =
+            this.subscriptionObserverMap.get(subscriptionId) || {};
 
-      // Notify concurrent unsubscription
-      if (typeof subscriptionFailedCallback === "function") {
-        subscriptionFailedCallback();
+          // Notify concurrent unsubscription
+          if (typeof subscriptionFailedCallback === "function") {
+            subscriptionFailedCallback();
+          }
+      }
+      catch(e)
+      {
+          console.log("Problem with subscriptionFailedCallback (ignoring):",e)
       }
       return;
     }
@@ -317,10 +324,7 @@ export class AppSyncRealTimeSubscriptionHandshakeLink extends ApolloLink {
     // For example if unsubscribe gets invoked before it finishes WebSocket handshake or START_ACK
     // subscriptionFailedCallback subscriptionReadyCallback are used to synchonized that
 
-    const {
-      subscriptionFailedCallback,
-      subscriptionReadyCallback
-    } = this.subscriptionObserverMap.get(subscriptionId);
+    const callbacks = this.subscriptionObserverMap.get(subscriptionId);
 
     // This must be done before sending the message in order to be listening immediately
     this.subscriptionObserverMap.set(subscriptionId, {
@@ -328,8 +332,8 @@ export class AppSyncRealTimeSubscriptionHandshakeLink extends ApolloLink {
       subscriptionState,
       variables,
       query,
-      subscriptionReadyCallback,
-      subscriptionFailedCallback,
+      subscriptionReadyCallback: callbacks?callbacks.subscriptionReadyCallback:null,
+      subscriptionFailedCallback: callbacks?callbacks.subscriptionFailedCallback:null,
       startAckTimeoutId: (setTimeout(() => {
         this._timeoutStartSubscriptionAck.call(this, subscriptionId);
       }, START_ACK_TIMEOUT) as unknown) as number
