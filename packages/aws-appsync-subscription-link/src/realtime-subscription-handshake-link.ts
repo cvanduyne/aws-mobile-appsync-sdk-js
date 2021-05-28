@@ -548,7 +548,7 @@ export class AppSyncRealTimeSubscriptionHandshakeLink extends ApolloLink {
           };
           newSocket.onopen = () => {
             this.awsRealTimeSocket = newSocket;
-            return res();
+            return res("");
           };
         });
       })();
