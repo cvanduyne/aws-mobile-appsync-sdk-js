@@ -198,8 +198,12 @@ export class AppSyncRealTimeSubscriptionHandshakeLink extends ApolloLink {
   private _removeSubscriptionObserver(subscriptionId) {
     this.subscriptionObserverMap.delete(subscriptionId);
     if (this.subscriptionObserverMap.size === 0) {
-      // Socket could be sending data to unsubscribe so is required to wait until is flushed
-      this._closeSocketWhenFlushed();
+      // The awsRealTimeSocket seems to do best if you let it keep running.  
+      // Completely loosing the socket just because you unsubscribed before you subscribed seems wrong and was causing problems.
+      if (!this.awsRealTimeSocket)       
+      {        
+        this._closeSocketWhenFlushed();
+      }
     }
   }
 
